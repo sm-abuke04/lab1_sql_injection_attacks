@@ -115,12 +115,25 @@ public class Main {
     }
 
     /**
+     * Input Validation
+     * Only allow alphanumeric and underscore
+     */
+    private static boolean isValidInput(String input) {
+        return input.matches("^[a-zA-Z0-9_]");
+    }
+
+    /**
      * Handles the search user functionality by taking username input and displaying matching user
      */
     private static void handleSearchUser() {
         System.out.println("-----------------SEARCH USER-----------------");
         System.out.println("Search Term: ");
         String username = scanner.next();
+
+        if (!isValidInput(username)) {
+            System.out.println("Invalid Username Format");
+            return;
+        }
         System.out.println(Crud.searchByUsername(username));
     }
 
@@ -140,6 +153,6 @@ public class Main {
      * Displays authentication error message when login fails
      */
     private static void displayAuthenticationError() {
-        System.err.println("Bad credentials. Shutting down.");
+        System.err.println("SQL Injection Detected. Shutting down.");
     }
 }

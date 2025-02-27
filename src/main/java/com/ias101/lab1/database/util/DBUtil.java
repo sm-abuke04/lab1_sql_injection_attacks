@@ -36,10 +36,12 @@ public class DBUtil {
      * @throws RuntimeException if connection cannot be closed properly
      */
     public void closeConnection(Connection conn) {
-        try {
-            conn.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                throw new RuntimeException("Error closing connection", e);
+            }
         }
     }
 }

@@ -43,6 +43,9 @@ public class Crud {
     }
 
 
+    public static boolean isValidInput(String input) {
+        return input.matches("^[a-zA-Z0-9_]");
+    }
     /**
      * Searches for a user by their <b>username</b>.
      *
@@ -51,19 +54,32 @@ public class Crud {
      * @throws RuntimeException if there is an error searching the database
      */
     public static User searchByUsername(String username) {
-        ResultSet rs = null;
-        User user = null;
+//        ResultSet rs = null;
+//        User user = null;
+//
+//        try (var connection = DBUtil.connect(DB_URL, DB_USER, DB_PASSWORD);
+//             Statement stmt = connection.createStatement()) {
+//
+//            // Deliberately vulnerable to SQL injection for demonstration
+//            rs = stmt.executeQuery(String.format("SELECT * FROM user_data WHERE username = '%s'", username));
+//            while(rs.next()) {
+//                user = extractUserFromResultSet(rs);
+//            }
+//            rs.close();
+//            return user;
+//        } catch (SQLException e) {
+//            throw new RuntimeException("Error searching for user: " + username, e);
+//         }
 
+        if (!isValidInput(username)) {
+            throw new IllegalArgumentException("Invalid Username Format.");
+        }
+
+        String query = "SELECT * FROM user_data WHERE username = '" + username.replace("'","''") + "'" ;
         try (var connection = DBUtil.connect(DB_URL, DB_USER, DB_PASSWORD);
-             Statement stmt = connection.createStatement()) {
-
-            // Deliberately vulnerable to SQL injection for demonstration
-            rs = stmt.executeQuery(String.format("SELECT * FROM user_data WHERE username = '%s'", username));
-            while(rs.next()) {
-                user = extractUserFromResultSet(rs);
-            }
-            rs.close();
-            return user;
+            Statement stmt = connection.createStatement();
+            var rs = stmt.executeQuery(query)) {
+            return rs.next() ? extractUserFromResultSet(rs) : null;
         } catch (SQLException e) {
             throw new RuntimeException("Error searching for user: " + username, e);
         }
@@ -76,15 +92,26 @@ public class Crud {
      * @throws RuntimeException if there is an error deleting the user
      */
     public static void deleteUserByUsername(String username) {
+        if (!isValidInput(username)) {
+            throw new IllegalArgumentException("Invalid Username Format.");
+        }
+
+        String query = "DELETE FROM user_data WHERE username = '" + username.replace("'", "''") + "'";
         try (var connection = DBUtil.connect(DB_URL, DB_USER, DB_PASSWORD);
-             Statement stmt = connection.createStatement()) {
-
-            // Deliberately vulnerable to SQL injection for demonstration
-            stmt.execute(String.format("DELETE FROM user_data WHERE username = '%s'", username));
-
-        } catch (SQLException e) {
+            Statement stmt = connection.createStatement()) {
+            stmt.execute(query);
+        }catch (SQLException e) {
             throw new RuntimeException("Error deleting user: " + username, e);
         }
+//        try (var connection = DBUtil.connect(DB_URL, DB_USER, DB_PASSWORD);
+//             Statement stmt = connection.createStatement()) {
+//
+//            // Deliberately vulnerable to SQL injection for demonstration
+//            stmt.execute(String.format("DELETE FROM user_data WHERE username = '%s'", username));
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException("Error deleting user: " + username, e);
+//        }
     }
 
     /**
